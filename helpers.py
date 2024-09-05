@@ -22,7 +22,7 @@ def compute_edges(img, crop_percent=15):
     )
     distances = distances / np.max(distances)
 
-    distances = distances[2:-2, 2:-2]
+    distances = distances[1:-1, 1:-1]
     return distances
 
 def resize(img, factor):
@@ -54,3 +54,62 @@ def compute_alignment(base, to_align, search_len, offset_x, offset_y, depth):
     print("Best:", best_x, best_y)
     if depth == 0: return best_x, best_y
     return compute_alignment(base, to_align, search_len, best_x*2, best_y*2, depth-1)
+
+def autocrop_axis(im, axis, crop_func):
+    alpha = (im.shape[0] // 500) + 1
+
+    distances = np.sqrt(
+        (im - np.roll(im, 1 * alpha, axis=axis))**2 +
+        (im - np.roll(im, 2 * alpha, axis=axis))**2 +
+        (im - np.roll(im, 3 * alpha, axis=axis))**2 +
+        (im - np.roll(im, 4 * alpha, axis=axis))**2 +
+        (im - np.roll(im, 5 * alpha, axis=axis))**2 +
+        (im - np.roll(im, 6 * alpha, axis=axis))**2 +
+        (im - np.roll(im, 7 * alpha, axis=axis))**2 +
+        (im - np.roll(im, 8 * alpha, axis=axis))**2 +
+        (im - np.roll(im, 9 * alpha, axis=axis))**2 +
+        (im - np.roll(im, 10 * alpha, axis=axis))**2 +
+        (im - np.roll(im, -1 * alpha, axis=axis))**2 +
+        (im - np.roll(im, -2 * alpha, axis=axis))**2 +
+        (im - np.roll(im, -3 * alpha, axis=axis))**2 +
+        (im - np.roll(im, -4 * alpha, axis=axis))**2 +
+        (im - np.roll(im, -5 * alpha, axis=axis))**2 +
+        (im - np.roll(im, -6 * alpha, axis=axis))**2 +
+        (im - np.roll(im, -7 * alpha, axis=axis))**2 +
+        (im - np.roll(im, -8 * alpha, axis=axis))**2 +
+        (im - np.roll(im, -9 * alpha, axis=axis))**2 +
+        (im - np.roll(im, -10 * alpha, axis=axis))**2
+    )
+    max_crop = int(0.15 * distances.shape[axis])
+
+    best_score = np.mean(distances)
+    best_crop = 0
+    scores = []
+    for i in range(max_crop):
+        attempt = crop_func(distances, i)
+        attempt_score = attempt.mean()
+        scores.append(attempt_score)
+        if attempt_score < best_score:
+            best_score = attempt_score
+            best_crop = i
+
+    return best_crop
+
+def crop_image(img):
+    im = 0.333 * img[:,:,0] + 0.333  * img[:,:,1] + 0.333 * img[:,:,2]
+    def crop_bottom_by_n_pixels(im, n): return im[:(-1 * int(n)), :]
+    def crop_top_by_n_pixels(im, n): return im[int(n):, :]
+    def crop_right_by_n_pixels(im, n): return im[:, :-1 * int(n)]
+    def crop_left_by_n_pixels(im, n): return im[:, int(n):]
+    
+    bottom_crop = autocrop_axis(im, 0, crop_bottom_by_n_pixels)
+    top_crop = autocrop_axis(im, 0, crop_top_by_n_pixels)
+    
+    right_crop = autocrop_axis(im, 1, crop_right_by_n_pixels)
+    left_crop = autocrop_axis(im, 1, crop_left_by_n_pixels)
+
+    bottom_cropped = crop_bottom_by_n_pixels(img, bottom_crop)
+    top_cropped = crop_top_by_n_pixels(bottom_cropped, top_crop)
+    right_cropped = crop_right_by_n_pixels(top_cropped, right_crop)
+    final = crop_left_by_n_pixels(right_cropped, left_crop)
+    return final

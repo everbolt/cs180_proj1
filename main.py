@@ -58,7 +58,10 @@ aligned_b = np.roll(b, (b_off_x, b_off_y), axis=(0, 1))
 
 logging.info('Applied alignment')
 
-im_out = np.dstack([r, aligned_g, aligned_b])
+aligned_im = np.dstack([r, aligned_g, aligned_b])
+
+im_out = crop_image(aligned_im)
+
 formatted_im = (im_out * 255).astype(np.uint8)
 skio.imsave(fname=out_path, arr=formatted_im)
 # skio.imshow(formatted_im)

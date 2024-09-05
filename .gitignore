@@ -1,1 +1,4 @@
 images
+bin
+venv
+__pycache__
