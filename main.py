@@ -15,7 +15,7 @@ parser=argparse.ArgumentParser()
 parser.add_argument("input", help="Input image path")
 parser.add_argument("output", help="Output image path")
 parser.add_argument("--depth", help="Number of recursive alignment calls", default=5, type=int)
-parser.add_argument("--width", help="Search size x and y for alignment", default=10, type=int)
+parser.add_argument("--width", help="Search size x and y for alignment", default=5, type=int)
 args=parser.parse_args()
 
 search_depth = args.depth
@@ -58,11 +58,9 @@ aligned_b = np.roll(b, (b_off_x, b_off_y), axis=(0, 1))
 
 logging.info('Applied alignment')
 
-aligned_im = np.dstack([r, aligned_g, aligned_b])
+im = np.dstack([r, aligned_g, aligned_b])
 
-im_out = crop_image(aligned_im)
+im = crop_image(im)
 
-formatted_im = (im_out * 255).astype(np.uint8)
+formatted_im = (im * 255).astype(np.uint8)
 skio.imsave(fname=out_path, arr=formatted_im)
-# skio.imshow(formatted_im)
-# skio.show()

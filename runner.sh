@@ -1,7 +1,7 @@
 #!/bin/bash
 
 input_dir="images"
-output_dir="final"
+output_dir="v2/cropped"
 
 for file in "$input_dir"/*.tif; do
     filename=$(basename "$file")

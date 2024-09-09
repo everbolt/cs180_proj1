@@ -51,7 +51,7 @@ def compute_alignment(base, to_align, search_len, offset_x, offset_y, depth):
             if diff < min_diff:
                 min_diff = diff
                 best_x, best_y = x, y
-    print("Best:", best_x, best_y)
+    logging.info(f"Best: {best_x}, {best_y}")
     if depth == 0: return best_x, best_y
     return compute_alignment(base, to_align, search_len, best_x*2, best_y*2, depth-1)
 
