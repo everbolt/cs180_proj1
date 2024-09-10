@@ -3,7 +3,7 @@ import skimage as sk
 import skimage.io as skio
 import argparse
 from sys import argv
-from helpers import *
+from utils import *
 import logging
 logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(message)s',
@@ -24,6 +24,9 @@ search_width = args.width
 in_path = argv[1]
 out_path = argv[2]
 im = skio.imread(in_path)
+
+f_name = in_path.split(".")[-2].split("/")[-1]
+out_dir = "/".join(out_path.split("/")[:-1])
 
 logging.info('Read file')
 
@@ -60,7 +63,16 @@ logging.info('Applied alignment')
 
 im = np.dstack([r, aligned_g, aligned_b])
 
-im = crop_image(im)
+im, crop_dims = crop_image(im)
+logging.info('Cropped image')
+
+b_crop, t_crop, r_crop, l_crop = crop_dims
+with open(f"{out_dir}/{f_name}_alignment.txt", "w") as f:
+    f.write(
+        f"Green: {g_off_x}, {g_off_y}"
+        + f"\nBlue: {b_off_x}, {b_off_y}"
+        + f"\nCrop: {b_crop}, {t_crop}, {r_crop}, {l_crop}"
+    )
 
 formatted_im = (im * 255).astype(np.uint8)
 skio.imsave(fname=out_path, arr=formatted_im)
