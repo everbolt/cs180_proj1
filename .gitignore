@@ -3,4 +3,5 @@ bin
 venv
 __pycache__
 *DS_Store
-submission*
+submission.zip
+*.pdf

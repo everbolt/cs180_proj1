@@ -42,10 +42,6 @@ r_edges = compute_edges(r, crop_percent=15)
 g_edges = compute_edges(g, crop_percent=15)
 b_edges = compute_edges(b, crop_percent=15)
 
-skio.imsave(fname="bin/red.jpg", arr=(r_edges * 255).astype(np.uint8))
-skio.imsave(fname="bin/green.jpg", arr=(g_edges * 255).astype(np.uint8))
-skio.imsave(fname="bin/blue.jpg", arr=(b_edges * 255).astype(np.uint8))
-
 logging.info('Computed edges')
 
 logging.info('Computing green alignment...')
